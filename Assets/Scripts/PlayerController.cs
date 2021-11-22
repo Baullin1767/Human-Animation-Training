@@ -7,11 +7,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     float distance = 3f;
 
-    float time = 0.767f;
+    float time;
     float currentDistanse = 0f;
     float currentDir = 0f;
 
-    Animator animator;
+    Animator animator;    
     CharacterController character;
 
     bool isInMivement = false;
@@ -23,9 +23,9 @@ public class PlayerController : MonoBehaviour
         character = GetComponent<CharacterController>();
     }
 
-    // Update is called once per frame
     void Update()
     {
+
         if (live)
         {
             float dir = Input.GetAxisRaw("Horizontal");
@@ -36,10 +36,16 @@ public class PlayerController : MonoBehaviour
                 currentDir = dir;
                 currentDistanse = distance;
                 if (dir > 0)
+                {
                     PlayTriggerAnimation("Right");
+                    time = animator.GetCurrentAnimatorStateInfo(0).length;
+                }
                 if (dir < 0)
+                { 
                     PlayTriggerAnimation("Left");
-            }
+                    time = animator.GetCurrentAnimatorStateInfo(0).length;
+                }
+        }
 
             if (isInMivement)
             {
