@@ -66,7 +66,6 @@ public class PlayerController : MonoBehaviour
         float tmpDist = Time.deltaTime * speed;
         character.Move(Vector3.right * currentDir * tmpDist);
         currentDistanse -= tmpDist;
-        //character.Move(Vector3.forward * );
     }
 
     private void OnTriggerEnter(Collider other)
