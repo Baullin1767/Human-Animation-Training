@@ -14,8 +14,9 @@ public class PlayerController : MonoBehaviour
     Animator animator;    
     CharacterController character;
 
-    bool isInMivement = false;
+    bool isInMovement = false;
     bool live = true;
+    bool lBorder = false, rBorder = false;
 
     void Start()
     {
@@ -25,32 +26,32 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        transform.position = new Vector3(Mathf.Clamp(transform.position.x, -3, 3), transform.position.y, transform.position.z);
 
         if (live)
         {
             float dir = Input.GetAxisRaw("Horizontal");
 
-            if (!isInMivement && dir != 0)
+            if (!isInMovement && dir != 0)
             {
-                isInMivement = true;
+                isInMovement = true;
                 currentDir = dir;
                 currentDistanse = distance;
-                if (dir > 0)
+                if (dir > 0 && (!rBorder))
                 {
                     PlayTriggerAnimation("Right");
-                    time = animator.GetCurrentAnimatorStateInfo(0).length;
+                    time = AnimationLength(0);
                 }
-                if (dir < 0)
-                { 
+                if (dir < 0 && (!lBorder))
+                {
+                    Debug.Log("Turn Left");
                     PlayTriggerAnimation("Left");
-                    time = animator.GetCurrentAnimatorStateInfo(0).length;
+                    time = AnimationLength(0);
                 }
-        }
+            }
 
-            if (isInMivement)
-            {
+            if (isInMovement)
                 Move();
-            } 
         }
     }
 
@@ -58,13 +59,14 @@ public class PlayerController : MonoBehaviour
     {
         if (currentDistanse <= 0)
         {
-            isInMivement = false;
+            isInMovement = false;
             return;
         }
         float speed = distance / time;
         float tmpDist = Time.deltaTime * speed;
         character.Move(Vector3.right * currentDir * tmpDist);
         currentDistanse -= tmpDist;
+        //character.Move(Vector3.forward * );
     }
 
     private void OnTriggerEnter(Collider other)
@@ -74,7 +76,36 @@ public class PlayerController : MonoBehaviour
             PlayTriggerAnimation("Death");
             live = false;
         }
+        if (other.CompareTag("Left Border"))
+        {
+            lBorder = true;
+            Debug.Log($"lBorder = {lBorder}");
+        }
+        if (other.CompareTag("Right Border"))
+        {
+            rBorder = true;
+            Debug.Log($"rBorder = {rBorder}");
+        }
     }
 
-    void PlayTriggerAnimation(string name) { animator.SetTrigger(name); }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Left Border"))
+        {
+            lBorder = false;
+            Debug.Log($"lBorder = {lBorder}");
+        }
+        if (other.CompareTag("Right Border"))
+        {
+            rBorder = false;
+            Debug.Log($"rBorder = {rBorder}");
+        }
+    }
+
+    float AnimationLength (int layerIndex)
+    { 
+        float length = animator.GetCurrentAnimatorStateInfo(layerIndex).length;
+        return length;
+    }
+    void PlayTriggerAnimation(string name) => animator.SetTrigger(name);
 }
